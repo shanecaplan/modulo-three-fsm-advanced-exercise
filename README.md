@@ -11,7 +11,7 @@ A complete finite state machine.
 Encapsulates the transition function.
 
 #### 3. `ModMachine` Class
-Generates a finite state machine for any provided modulus (**without** using PHP's idiomatic mod operator).
+Generates a finite state machine for any provided modulus (**without** using PHP's idiomatic mod operator). The FSM is generated dynamically. Only an integer is provided, representing the modulus.
 
 #### 4. `ModThreeMachine` Class
 This extends ModMachine and simply passes the integer 3 to the parent constructor. Included for completion.
@@ -87,6 +87,8 @@ $modFiveMachine->execute('1110'); // 4
 $modFiveMachine->execute('1111'); // 0
 ```
 
+The index.php file also contains the above ModMachine code.
+
 ### Using ModThreeMachine
 
 ```php
@@ -98,6 +100,8 @@ $modThreeMachine->execute('1101'); // 1
 $modThreeMachine->execute('1110'); // 2
 $modThreeMachine->execute('1111'); // 0
 ```
+
+The index.php file also contains the above ModThreeMachine code.
 
 ## Testing
 
