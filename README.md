@@ -11,7 +11,7 @@ A complete finite state machine.
 Encapsulates the transition function.
 
 #### 3. `ModMachine` Class
-Generates a finite state machine for any provided modulus (**without** using PHP's idiomatic mod operator). The FSM is generated dynamically. Only an integer is provided, representing the modulus.
+Generates a finite state machine for any provided modulus (**without** using PHP's idiomatic mod operator). The mod FSM is generated dynamically. Only an integer is provided, representing the modulus.
 
 #### 4. `ModThreeMachine` Class
 This extends ModMachine and simply passes the integer 3 to the parent constructor. Included for completion.
