@@ -1,4 +1,4 @@
-# Modulo 3 Exercise (Advanced)
+# Modulo 3 FSM Exercise (Advanced)
 
 ## Core Classes
 
