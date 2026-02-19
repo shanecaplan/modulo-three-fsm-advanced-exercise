@@ -189,33 +189,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test throws error when number of states defined in TransitionFunction not equal to number of allowed states in FiniteStateMachine.
+	 * Test transitions not defined for state throws error.
 	 */
-	public function testThrowsErrorWhenNumberOfStatesInTransitionFunctionNotEqualToNumberOfAllowedStates (): void {
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage("Transitions exist for 2 states but there are 3 allowed states. Expected transitions to be defined for all allowed states.");
-
-		$tf = new TransitionFunction();
-		$tf->addTransition('S0', 'a', 'S0');
-		$tf->addTransition('S0', 'b', 'S1');
-		$tf->addTransition('S1', 'a', 'S1');
-		$tf->addTransition('S1', 'b', 'S0');
-
-		$fsm = new FiniteStateMachine(
-			allowedStates: ['S0', 'S1', 'S2'],
-			alphabet: ['a', 'b'],
-			initialState: 'S0',
-			acceptedStates: ['S0'],
-			transitionFunction: $tf
-		);
-
-		$fsm->execute('ac');
-	}
-
-	/**
-	 * Test transitions not defined at all for state throws error.
-	 */
-	public function testTransitionsNotDefinedAtAllForStateThrowsError (): void {
+	public function testTransitionsNotDefinedForStateThrowsError (): void {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transitions not defined for state 'S2'.");
 
@@ -224,8 +200,6 @@ class FiniteStateMachineTest extends TestCase {
 		$tf->addTransition('S0', 'b', 'S1');
 		$tf->addTransition('S1', 'a', 'S1');
 		$tf->addTransition('S1', 'b', 'S0');
-		$tf->addTransition('S3', 'a', 'S1');
-		$tf->addTransition('S3', 'b', 'S0');
 
 		$fsm = new FiniteStateMachine(
 			allowedStates: ['S0', 'S1', 'S2'],
@@ -239,14 +213,43 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test throws error when number of transitions for state not equal to number of symbols in alphabet.
+	 * Test throws error when number of states defined in TransitionFunction is greater than number of allowed states.
 	 */
-	public function testThrowsErrorWhenNumberOfTransitionsForStateNotEqualToNumberOfSymbolsInAlphabet (): void {
+	public function testThrowsErrorWhenNumberOfStatesDefinedInTransitionFunctionIsGreaterThanNumberOfAllowedStates (): void {
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage("There are 1 transitions for state 'S0' but there are 2 symbols in the alphabet. Expected the same number of transitions for state as there are symbols.");
+		$this->expectExceptionMessage("Transitions exist for 4 states but there are only 3 allowed states. Expected transitions to be defined only for allowed states.");
 
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S0');
+		$tf->addTransition('S0', 'b', 'S1');
+		$tf->addTransition('S1', 'a', 'S1');
+		$tf->addTransition('S1', 'b', 'S0');
+		$tf->addTransition('S2', 'a', 'S1');
+		$tf->addTransition('S2', 'b', 'S2');
+		$tf->addTransition('S3', 'a', 'S0');
+		$tf->addTransition('S3', 'b', 'S1');
+
+		$fsm = new FiniteStateMachine(
+			allowedStates: ['S0', 'S1', 'S2'],
+			alphabet: ['a', 'b'],
+			initialState: 'S0',
+			acceptedStates: ['S0'],
+			transitionFunction: $tf
+		);
+
+		$fsm->execute('ac');
+	}
+
+	/**
+	 * Test transition not defined for state and symbol throws error.
+	 */
+	public function testTransitionNotDefinedForStateAndSymbolThrowsError (): void {
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage("Missing transition for state 'S0' and symbol 'b'. Expected transition to be defined.");
+
+		$tf = new TransitionFunction();
+		$tf->addTransition('S0', 'a', 'S0');
+		$tf->addTransition('S0', 'c', 'S0');
 
 		new FiniteStateMachine(
 			allowedStates: ['S0'],
@@ -258,14 +261,15 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test transition not defined for state and symbol throws error.
+	 * Test throws error when number of transitions for state is greater than number of symbols in alphabet.
 	 */
-	public function testTransitionsNotDefinedForStateAndSymbolThrowsError (): void {
+	public function testThrowsErrorWhenNumberOfTransitionsForStateIsGreaterThanNumberOfSymbolsInAlphabet (): void {
 		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage("Missing transition for state 'S0' and symbol 'b'. Expected transition to be defined.");
+		$this->expectExceptionMessage("There are 3 transitions for state 'S0' but there are only 2 symbols in alphabet. Expected transitions to be defined only for symbols in alphabet.");
 
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S0');
+		$tf->addTransition('S0', 'b', 'S0');
 		$tf->addTransition('S0', 'c', 'S0');
 
 		new FiniteStateMachine(

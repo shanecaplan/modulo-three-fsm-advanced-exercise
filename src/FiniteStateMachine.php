@@ -90,17 +90,7 @@ class FiniteStateMachine {
 
 	private function assertTransitionFunctionValid (): void {
 		$transitionFunction = $this->transitionFunction;
-		$transitionsStatesCount = $transitionFunction->getStatesCount();
-
 		$allowedStates = $this->allowedStates;
-		$allowedStatesCount = count($allowedStates);
-
-		if ($transitionsStatesCount !== $allowedStatesCount) {
-			throw new \InvalidArgumentException(
-				"Transitions exist for $transitionsStatesCount states but there are $allowedStatesCount allowed states. ".
-				"Expected transitions to be defined for all allowed states."
-			);
-		}
 
 		foreach ($allowedStates as $inputState) {
 			if (!$transitionFunction->hasTransitionsForState($inputState)) {
@@ -109,20 +99,20 @@ class FiniteStateMachine {
 
 			$this->assertTransitionsForStateValid($transitionFunction, $inputState);
 		}
+
+		$transitionsStatesCount = $transitionFunction->getStatesCount();
+		$allowedStatesCount = count($allowedStates);
+
+		if ($transitionsStatesCount > $allowedStatesCount) {
+			throw new \InvalidArgumentException(
+				"Transitions exist for $transitionsStatesCount states but there are only $allowedStatesCount allowed ".
+				"states. Expected transitions to be defined only for allowed states."
+			);
+		}
 	}
 
 	private function assertTransitionsForStateValid (TransitionFunction $transitionFunction, string $inputState): void {
-		$transitionsCountForState = $transitionFunction->getTransitionsCountForState($inputState);
-
 		$alphabet = $this->alphabet;
-		$symbolsCount = count($alphabet);
-
-		if ($transitionsCountForState !== $symbolsCount) {
-			throw new \InvalidArgumentException(
-				"There are $transitionsCountForState transitions for state '$inputState' but there are $symbolsCount ".
-				"symbols in the alphabet. Expected the same number of transitions for state as there are symbols."
-			);
-		}
 
 		foreach ($alphabet as $inputSymbol) {
 			if (!$transitionFunction->hasTransition($inputState, $inputSymbol)) {
@@ -140,6 +130,16 @@ class FiniteStateMachine {
 					"'$nextState'. Expected next state to be in list of allowed states."
 				);
 			}
+		}
+
+		$transitionsCountForState = $transitionFunction->getTransitionsCountForState($inputState);
+		$symbolsCount = count($alphabet);
+
+		if ($transitionsCountForState > $symbolsCount) {
+			throw new \InvalidArgumentException(
+				"There are $transitionsCountForState transitions for state '$inputState' but there are only ".
+				"$symbolsCount symbols in alphabet. Expected transitions to be defined only for symbols in alphabet."
+			);
 		}
 	}
 
