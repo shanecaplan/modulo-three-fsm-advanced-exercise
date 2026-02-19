@@ -189,9 +189,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test transitions not defined for state throws error.
+	 * Test transitions not defined for state throws exception.
 	 */
-	public function testTransitionsNotDefinedForStateThrowsError (): void {
+	public function testTransitionsNotDefinedForStateThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transitions not defined for state 'S2'.");
 
@@ -213,9 +213,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test throws error when number of states defined in TransitionFunction is greater than number of allowed states.
+	 * Test throws exception when number of states defined in TransitionFunction is greater than number of allowed states.
 	 */
-	public function testThrowsErrorWhenNumberOfStatesDefinedInTransitionFunctionIsGreaterThanNumberOfAllowedStates (): void {
+	public function testThrowsExceptionWhenNumberOfStatesDefinedInTransitionFunctionIsGreaterThanNumberOfAllowedStates (): void {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transitions exist for 4 states but there are only 3 allowed states. Expected transitions to be defined only for allowed states.");
 
@@ -241,9 +241,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test transition not defined for state and symbol throws error.
+	 * Test transition not defined for state and symbol throws exception.
 	 */
-	public function testTransitionNotDefinedForStateAndSymbolThrowsError (): void {
+	public function testTransitionNotDefinedForStateAndSymbolThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage("Missing transition for state 'S0' and symbol 'b'. Expected transition to be defined.");
 
@@ -261,9 +261,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test throws error when number of transitions for state is greater than number of symbols in alphabet.
+	 * Test throws exception when number of transitions for state is greater than number of symbols in alphabet.
 	 */
-	public function testThrowsErrorWhenNumberOfTransitionsForStateIsGreaterThanNumberOfSymbolsInAlphabet (): void {
+	public function testThrowsExceptionWhenNumberOfTransitionsForStateIsGreaterThanNumberOfSymbolsInAlphabet (): void {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessage("There are 3 transitions for state 'S0' but there are only 2 symbols in alphabet. Expected transitions to be defined only for symbols in alphabet.");
 
@@ -346,9 +346,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test that FiniteStateMachine can be instantiated with valid configuration.
+	 * Test instantiate with valid configuration.
 	 */
-	public function testCanInstantiateWithValidConfiguration(): void {
+	public function testInstantiateWithValidConfiguration(): void {
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S1');
 		$tf->addTransition('S0', 'b', 'S0');
@@ -372,9 +372,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test process valid input.
+	 * Test execute with valid input.
 	 */
-	public function testProcessValidInput (): void {
+	public function testExecuteWithValidInput (): void {
 		$tf = new TransitionFunction();
 
 		$tf->addTransition('S0', 'a', 'S2');
@@ -399,9 +399,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test process self looping input.
+	 * Test execute with self looping input.
 	 */
-	public function testProcessSelfLoopingInput (): void {
+	public function testExecuteWithSelfLoopingInput (): void {
 		$tf = new TransitionFunction();
 
 		$tf->addTransition('S0', 'a', 'S0');
@@ -422,9 +422,9 @@ class FiniteStateMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test process empty string returns initial state.
+	 * Test execute empty string input returns initial state.
 	 */
-	public function testProcessEmptyStringReturnsInitialState (): void {
+	public function testExecuteEmptyStringInputReturnsInitialState (): void {
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S1');
 		$tf->addTransition('S1', 'a', 'S0');
