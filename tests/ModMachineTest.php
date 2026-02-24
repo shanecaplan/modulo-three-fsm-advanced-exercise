@@ -9,10 +9,37 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use tests\SharedData;
 
+/**
+ * Unit tests for {@see ModMachine}.
+ *
+ * Tests are grouped into three areas:
+ *
+ *  1. Data-driven correctness — verifies that the machine produces the correct
+ *     remainder for a comprehensive set of (modulus, binary input) pairs using
+ *     {@see validModMachineDataProvider}.
+ *
+ *  2. Construction-time validation — verifies that invalid moduli are rejected
+ *     with a descriptive exception.
+ *
+ *  3. Input validation — verifies that non-binary characters in the input string
+ *     are rejected before execution reaches the underlying FSM.
+ *
+ *  4. Edge cases — empty input, very large numbers, and a range sweep to confirm
+ *     correctness and consistency across moduli.
+ */
 class ModMachineTest extends TestCase {
 
+	// =========================================================================
+	// Data-driven correctness
+	// =========================================================================
+
 	/**
-	 * Test wide variety of mod machines using a wide variety of binary inputs.
+	 * Verifies that ModMachine returns the correct remainder for every combination
+	 * of modulus (1–25) and binary input provided by {@see validModMachineDataProvider}.
+	 *
+	 * The expected remainder is computed independently using PHP's bindec() and the
+	 * modulo operator, so this test does not rely on the machine's own implementation
+	 * for the expected value.
 	 */
 	#[DataProvider('validModMachineDataProvider')]
 	public function testModMachine (int $modulus, string $binaryInput, int $expectedRemainder): void {
@@ -22,11 +49,19 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Provides modulus for ModMachine instantiation (from mod 1 to mod 25), comprehensive valid binary
-	 * inputs for execution, and corresponding expected remainders for comparison with said binary inputs.
-	 * Binary inputs vary by bits / number of bits.
-	 * Valid edge cases are also covered.
-	 * See BinaryData::getComprehensiveBinaryNumbers
+	 * Generates test cases for every combination of modulus in [1, 25] and every
+	 * binary number returned by {@see BinaryData::getComprehensiveBinaryNumbers()}.
+	 *
+	 * The comprehensive binary numbers cover:
+	 *   - All possible remainders for each modulus (0 through modulus - 1)
+	 *   - Single-bit values ('0', '1')
+	 *   - Multi-bit values with varying patterns (all zeros, all ones, mixed)
+	 *   - Edge cases such as the empty string (representing 0) and leading zeros
+	 *
+	 * Expected remainders are derived via PHP's built-in bindec() + modulo, acting
+	 * as an independent reference implementation.
+	 *
+	 * @return array<array{int, string, int}> Tuples of [modulus, binaryInput, expectedRemainder].
 	 */
 	public static function validModMachineDataProvider (): array {
 		$provided = [];
@@ -46,8 +81,13 @@ class ModMachineTest extends TestCase {
 		return $provided;
 	}
 
+	// =========================================================================
+	// Construction-time validation
+	// =========================================================================
+
 	/**
-	 * Test modulus of 0 (zero) throws exception.
+	 * A modulus of zero is invalid because it would require division by zero to
+	 * compute a remainder. The constructor must reject it immediately.
 	 */
 	public function testModulusOfZeroThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -57,7 +97,8 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test negative modulus throws exception.
+	 * A negative modulus has no meaningful interpretation and must be rejected
+	 * by the constructor.
 	 */
 	public function testNegativeModulusThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -66,8 +107,15 @@ class ModMachineTest extends TestCase {
 		new ModMachine(-1);
 	}
 
+	// =========================================================================
+	// Input validation
+	// =========================================================================
+
 	/**
-	 * Test invalid numeric character throws exception.
+	 * A digit other than '0' or '1' in the input should be caught and rejected
+	 * before execution reaches the underlying FSM.
+	 *
+	 * Note: '3' at position 3 of '10031' is the first invalid character encountered.
 	 */
 	public function testInvalidNumericCharacterThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -78,7 +126,8 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test non-numeric character throws exception.
+	 * Non-numeric characters in the input must be rejected by the binary-string
+	 * validation before execution reaches the underlying FSM.
 	 */
 	public function testNonNumericCharacterThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -89,7 +138,8 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test space character alone throws exception.
+	 * A whitespace-only input must be rejected; a space character is not a valid
+	 * binary digit.
 	 */
 	public function testSpaceCharacterAloneThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -100,7 +150,8 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test space character in middle throws exception.
+	 * A space embedded within an otherwise valid binary string must be rejected;
+	 * whitespace is not a valid binary digit.
 	 */
 	public function testSpaceCharacterInMiddleThrowsException (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -110,8 +161,13 @@ class ModMachineTest extends TestCase {
 		$modMachine->execute('10 01');
 	}
 
+	// =========================================================================
+	// Edge cases
+	// =========================================================================
+
 	/**
-	 * Test empty input evaluates to zero.
+	 * An empty input string represents the integer 0, so the remainder should be
+	 * 0 for any modulus (since 0 mod N = 0).
 	 */
 	public function testEmptyInputEvaluatesToZero (): void {
 		$modMachine = new ModMachine(4);
@@ -123,24 +179,34 @@ class ModMachineTest extends TestCase {
 	}
 
 	/**
-	 * Test very large number.
+	 * A 100-bit all-ones binary string (2^100 - 1) exceeds a 64-bit integer, so PHP
+	 * would overflow if evaluated with bindec(). The DFA computes remainders
+	 * incrementally and therefore handles arbitrarily large numbers correctly.
+	 *
+	 * For mod 5: (2^100 - 1) mod 5 = 0, verified by number theory (since 2^4 ≡ 1 mod 5,
+	 * and 100 is a multiple of 4, so 2^100 ≡ 1, meaning 2^100 - 1 ≡ 0 mod 5).
+	 *
+	 * The test also checks that two identical calls return the same result, confirming
+	 * that the machine is stateless between executions.
 	 */
 	public function testVeryLargeNumber (): void {
 		$modMachine = new ModMachine(5);
 
-		$largeBinaryInput = str_repeat('1', 100); // over 64 bits
+		$largeBinaryInput = str_repeat('1', 100); // 100-bit number, well beyond 64-bit range
 
 		$expectedRemainder = 0;
 
 		$actualRemainder1 = $modMachine->execute($largeBinaryInput);
 		$actualRemainder2 = $modMachine->execute($largeBinaryInput);
 
-		$this->assertSame($expectedRemainder, $actualRemainder1); // check for a remainder of 0
-		$this->assertSame($actualRemainder1, $actualRemainder2); // check for a consistent result
+		$this->assertSame($expectedRemainder, $actualRemainder1); // 2^100 - 1 ≡ 0 (mod 5)
+		$this->assertSame($actualRemainder1, $actualRemainder2);  // machine must be stateless
 	}
 
 	/**
-	 * Test comprehensive range of numbers (0 to 100).
+	 * Sweeps all integers from 0 to 100, converting each to a binary string and
+	 * verifying that the machine returns the same remainder as PHP's native modulo
+	 * operator. This provides a dense, sequential check across a realistic input range.
 	 */
 	public function testComprehensiveRangeOfNumbers (): void {
 		$modMachine = new ModMachine(5);

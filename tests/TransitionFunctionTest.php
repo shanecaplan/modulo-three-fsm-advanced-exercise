@@ -5,10 +5,16 @@ declare(strict_types=1);
 use PHPUnit\Framework\TestCase;
 use FSM\TransitionFunction;
 
+/**
+ * Unit tests for {@see TransitionFunction}.
+ *
+ * Covers adding and overwriting transitions, querying their existence,
+ * executing transitions, and counting states and transitions.
+ */
 class TransitionFunctionTest extends TestCase {
 
 	/**
-	 * Test adding a single transition.
+	 * A freshly registered transition should immediately be discoverable via hasTransition().
 	 */
 	public function testAddTransition (): void {
 		$tf = new TransitionFunction();
@@ -18,8 +24,8 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test execution of transition.
- 	*/
+	 * execute() should return the correct next state for each registered (state, symbol) pair.
+	 */
 	public function testExecuteTransition (): void {
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S1');
@@ -32,30 +38,38 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test hasTransition for existing and non-existing transitions.
+	 * hasTransition() should return true only for exact (state, symbol) pairs that were registered.
+	 *
+	 * Checks that a different symbol on the same state, and the same symbol on a different
+	 * state, each return false.
 	 */
 	public function testHasTransition (): void {
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S1');
 
-		$this->assertTrue($tf->hasTransition('S0', 'a'));
-		$this->assertFalse($tf->hasTransition('S0', 'b'));
-		$this->assertFalse($tf->hasTransition('S1', 'a'));
+		$this->assertTrue($tf->hasTransition('S0', 'a'));   // registered pair
+		$this->assertFalse($tf->hasTransition('S0', 'b'));  // wrong symbol
+		$this->assertFalse($tf->hasTransition('S1', 'a'));  // wrong state
 	}
 
 	/**
-	 * Test hasTransitionsForState for existing and non-existing states.
+	 * hasTransitionsForState() should return true only for states that have at least one
+	 * outgoing transition registered.
+	 *
+	 * Note: S1 is a *target* state of a registered transition but has no transitions
+	 * of its own, so hasTransitionsForState('S1') must return false.
 	 */
 	public function testHasTransitionsForState (): void {
 		$tf = new TransitionFunction();
 		$tf->addTransition('S0', 'a', 'S1');
 
-		$this->assertTrue($tf->hasTransitionsForState('S0'));
-		$this->assertFalse($tf->hasTransitionsForState('S1'));
+		$this->assertTrue($tf->hasTransitionsForState('S0'));   // has outgoing transitions
+		$this->assertFalse($tf->hasTransitionsForState('S1'));  // target only, no outgoing transitions
 	}
 
 	/**
-	 * Test undefined transition throws exception when executed.
+	 * Attempting to execute an unregistered (state, symbol) pair should throw
+	 * an InvalidArgumentException with a descriptive message.
 	 */
 	public function testUndefinedTransitionThrowsExceptionWhenExecuted (): void {
 		$this->expectException(\InvalidArgumentException::class);
@@ -68,7 +82,8 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test getting states count.
+	 * getStatesCount() should return the number of distinct states that have at least
+	 * one outgoing transition registered, regardless of how many transitions each has.
 	 */
 	public function testGetStatesCount (): void {
 		$tf = new TransitionFunction();
@@ -83,7 +98,8 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test getting transitions count for a specific state.
+	 * getTransitionsCountForState() should return the exact number of outgoing transitions
+	 * registered for a given state, independently for each state.
 	 */
 	public function testGetTransitionsCountForState (): void {
 		$tf = new TransitionFunction();
@@ -96,22 +112,23 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test overwriting a transition.
+	 * Calling addTransition() with the same (state, symbol) pair a second time should
+	 * silently overwrite the previously registered next state.
 	 */
 	public function testOverwritingTransition (): void {
 		$tf = new TransitionFunction();
 
-		// Add the transition S0.
 		$tf->addTransition('S0', 'a', 'S1');
 		$this->assertSame('S1', $tf->execute('S0', 'a'));
 
-		// Overwrite the transition S0.
+		// Same (state, symbol) pair registered again with a different next state.
 		$tf->addTransition('S0', 'a', 'S2');
 		$this->assertSame('S2', $tf->execute('S0', 'a'));
 	}
 
 	/**
-	 * Test multiple transitions from same state.
+	 * A single state may have multiple outgoing transitions, one per symbol.
+	 * Each should resolve independently to its own next state.
 	 */
 	public function testMultipleTransitionsFromSameState (): void {
 		$tf = new TransitionFunction();
@@ -125,7 +142,8 @@ class TransitionFunctionTest extends TestCase {
 	}
 
 	/**
-	 * Test self looping transition.
+	 * A transition where the next state is the same as the input state (a self-loop)
+	 * should be stored and executed correctly.
 	 */
 	public function testSelfLoopingTransition (): void {
 		$tf = new TransitionFunction();
