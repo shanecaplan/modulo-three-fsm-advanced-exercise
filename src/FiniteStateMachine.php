@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace FSM;
 
+use DomainException;
+use InvalidArgumentException;
+
 /**
  * A deterministic finite state machine (DFA).
  *
@@ -50,7 +53,7 @@ class FiniteStateMachine {
 	 * @param string[]           $acceptedStates    The set of accepting states F.
 	 * @param TransitionFunction $transitionFunction The transition function δ.
 	 *
-	 * @throws \InvalidArgumentException If any component of the DFA definition is invalid.
+	 * @throws InvalidArgumentException If any component of the DFA definition is invalid.
 	 */
 	public function __construct (
 		array $allowedStates,
@@ -81,8 +84,8 @@ class FiniteStateMachine {
 	 *
 	 * @param string $input The string to process, composed of symbols from the alphabet.
 	 *
-	 * @throws \InvalidArgumentException If the input contains a symbol not in the alphabet.
-	 * @throws \DomainException          If the final state is not an accepted state.
+	 * @throws InvalidArgumentException If the input contains a symbol not in the alphabet.
+	 * @throws DomainException          If the final state is not an accepted state.
 	 *
 	 * @return string The accepted final state after processing the entire input.
 	 */
@@ -107,7 +110,7 @@ class FiniteStateMachine {
 	/**
 	 * Validates that the alphabet is a non-empty array of unique, non-empty strings.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertAlphabetValid (): void {
 		$this->assertUniqueNonEmptyStringArray($this->alphabet, [
@@ -121,7 +124,7 @@ class FiniteStateMachine {
 	/**
 	 * Validates that the allowed states list is a non-empty array of unique, non-empty strings.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertAllowedStatesValid (): void {
 		$this->assertUniqueNonEmptyStringArray($this->allowedStates, [
@@ -135,7 +138,7 @@ class FiniteStateMachine {
 	/**
 	 * Validates that every accepted state is a member of the allowed states list.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertAcceptedStatesValid (): void {
 		$acceptedStates = $this->acceptedStates;
@@ -151,7 +154,7 @@ class FiniteStateMachine {
 	/**
 	 * Validates that the initial state is a member of the allowed states list.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertInitialStateValid (): void {
 		$this->assertStateAllowed(
@@ -166,11 +169,11 @@ class FiniteStateMachine {
 	 * @param string $state        The state to check.
 	 * @param string $errorMessage A sprintf-compatible message accepting the state as %s.
 	 *
-	 * @throws \InvalidArgumentException If the state is not in the allowed states list.
+	 * @throws InvalidArgumentException If the state is not in the allowed states list.
 	 */
 	private function assertStateAllowed (string $state, string $errorMessage): void {
 		if (!in_array($state, $this->allowedStates, true)) {
-			throw new \InvalidArgumentException(sprintf($errorMessage, $state));
+			throw new InvalidArgumentException(sprintf($errorMessage, $state));
 		}
 	}
 
@@ -179,7 +182,7 @@ class FiniteStateMachine {
 	 * (state, symbol) pair in Q × Σ, and that it references no states or symbols
 	 * outside of the allowed states list and alphabet.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertTransitionFunctionValid (): void {
 		$transitionFunction = $this->transitionFunction;
@@ -187,7 +190,7 @@ class FiniteStateMachine {
 
 		foreach ($allowedStates as $inputState) {
 			if (!$transitionFunction->hasTransitionsForState($inputState)) {
-				throw new \InvalidArgumentException("Transitions not defined for state '$inputState'.");
+				throw new InvalidArgumentException("Transitions not defined for state '$inputState'.");
 			}
 
 			$this->assertTransitionsForStateValid($transitionFunction, $inputState);
@@ -198,7 +201,7 @@ class FiniteStateMachine {
 		$allowedStatesCount = count($allowedStates);
 
 		if ($transitionsStatesCount > $allowedStatesCount) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				"Transitions exist for $transitionsStatesCount states but there are only $allowedStatesCount allowed ".
 				"states. Expected transitions to be defined only for allowed states."
 			);
@@ -212,14 +215,14 @@ class FiniteStateMachine {
 	 * @param TransitionFunction $transitionFunction The transition function to validate.
 	 * @param string             $inputState         The state whose transitions are being checked.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertTransitionsForStateValid (TransitionFunction $transitionFunction, string $inputState): void {
 		$alphabet = $this->alphabet;
 
 		foreach ($alphabet as $inputSymbol) {
 			if (!$transitionFunction->hasTransition($inputState, $inputSymbol)) {
-				throw new \InvalidArgumentException(
+				throw new InvalidArgumentException(
 					"Missing transition for state '$inputState' and symbol '$inputSymbol'. ".
 					"Expected transition to be defined."
 				);
@@ -228,7 +231,7 @@ class FiniteStateMachine {
 			$nextState = $transitionFunction->execute($inputState, $inputSymbol);
 
 			if (!in_array($nextState, $this->allowedStates, true)) {
-				throw new \InvalidArgumentException(
+				throw new InvalidArgumentException(
 					"Transition for state '$inputState' and symbol '$inputSymbol' leads to an invalid next state of ".
 					"'$nextState'. Expected next state to be in list of allowed states."
 				);
@@ -240,7 +243,7 @@ class FiniteStateMachine {
 		$symbolsCount = count($alphabet);
 
 		if ($transitionsCountForState > $symbolsCount) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				"There are $transitionsCountForState transitions for state '$inputState' but there are only ".
 				"$symbolsCount symbols in alphabet. Expected transitions to be defined only for symbols in alphabet."
 			);
@@ -254,13 +257,13 @@ class FiniteStateMachine {
 	 * @param string $input    The full input string (used in the error message).
 	 * @param int    $position The zero-based index of $symbol within $input.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private function assertInputSymbolInAlphabet (string $symbol, string $input, int $position): void {
 		$alphabet = $this->alphabet;
 
 		if (!in_array($symbol, $alphabet, true)) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				"Unknown symbol '$symbol' within input '$input' at position $position. ".
 				"Expected symbol to be found in alphabet: ".implode(', ', $alphabet)
 			);
@@ -273,11 +276,11 @@ class FiniteStateMachine {
 	 * @param string $finalState The state the machine is in after consuming the full input.
 	 * @param string $input      The input string that was processed (used in the error message).
 	 *
-	 * @throws \DomainException If the final state is not in the accepted states list.
+	 * @throws DomainException If the final state is not in the accepted states list.
 	 */
 	private function assertFinalStateAccepted (string $finalState, string $input): void {
 		if (!in_array($finalState, $this->acceptedStates, true)) {
-			throw new \DomainException(
+			throw new DomainException(
 				"Rejected final state '$finalState' for input '$input'. ".
 				"Expected final state to be found in list of accepted states."
 			);
@@ -297,26 +300,26 @@ class FiniteStateMachine {
 	 * @param array    $array         The array to validate.
 	 * @param string[] $errorMessages Keyed error message templates.
 	 *
-	 * @throws \InvalidArgumentException
+	 * @throws InvalidArgumentException
 	 */
 	private static function assertUniqueNonEmptyStringArray (array $array, array $errorMessages): void {
 		if (empty($array)) {
-			throw new \InvalidArgumentException($errorMessages['arrayEmpty']);
+			throw new InvalidArgumentException($errorMessages['arrayEmpty']);
 		}
 
 		$processedValues = [];
 
 		foreach ($array as $value) {
 			if (!is_string($value)) {
-				throw new \InvalidArgumentException(sprintf($errorMessages['valueNotString'], $value));
+				throw new InvalidArgumentException(sprintf($errorMessages['valueNotString'], $value));
 			}
 
 			if ($value === '') {
-				throw new \InvalidArgumentException(sprintf($errorMessages['valueEmptyString'], $value));
+				throw new InvalidArgumentException(sprintf($errorMessages['valueEmptyString'], $value));
 			}
 
 			if (in_array($value, $processedValues)) {
-				throw new \InvalidArgumentException(sprintf($errorMessages['valueDuplicate'], $value));
+				throw new InvalidArgumentException(sprintf($errorMessages['valueDuplicate'], $value));
 			}
 
 			$processedValues[] = $value;

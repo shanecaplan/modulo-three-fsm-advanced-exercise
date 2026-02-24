@@ -72,7 +72,7 @@ class TransitionFunctionTest extends TestCase {
 	 * an InvalidArgumentException with a descriptive message.
 	 */
 	public function testUndefinedTransitionThrowsExceptionWhenExecuted (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Unknown transition with input state 'S0' and input symbol 'x'.");
 
 		$tf = new TransitionFunction();

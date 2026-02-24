@@ -13,7 +13,7 @@ use FSM\TransitionFunction;
  *
  *  1. Construction-time validation — verifies that each of the five DFA components
  *     (alphabet, allowed states, accepted states, initial state, transition function)
- *     is validated correctly and throws {@see \InvalidArgumentException} on bad input.
+ *     is validated correctly and throws {@see InvalidArgumentException} on bad input.
  *
  *  2. Happy-path construction — verifies that a well-formed DFA can be instantiated
  *     and that its getters return the values passed to the constructor.
@@ -32,7 +32,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * An empty alphabet array must be rejected at construction time.
 	 */
 	public function testEmptyAlphabetThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Invalid alphabet array. Expected non-empty array.');
 
 		$tf = new TransitionFunction();
@@ -51,7 +51,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * must be rejected at construction time.
 	 */
 	public function testNonStringSymbolsInAlphabetThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid type for alphabet symbol: 0. Expected string.");
 
 		$tf = new TransitionFunction();
@@ -70,7 +70,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * construction time, even when surrounded by valid symbols.
 	 */
 	public function testEmptySymbolInAlphabetThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid value for symbol '' in alphabet. Expected non-empty string.");
 
 		$tf = new TransitionFunction();
@@ -89,7 +89,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * at construction time.
 	 */
 	public function testDuplicateSymbolInAlphabetThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Duplicate symbol 'b' in alphabet. Expected alphabet symbols to be unique.");
 
 		$tf = new TransitionFunction();
@@ -111,7 +111,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * An empty allowed states array must be rejected at construction time.
 	 */
 	public function testEmptyAllowedStatesThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Invalid allowed states array. Expected non-empty array.');
 
 		$tf = new TransitionFunction();
@@ -130,7 +130,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * allowed states array must be rejected at construction time.
 	 */
 	public function testNonStringValuesInAllowedStatesThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid type for allowed state: 2. Expected string.");
 
 		$tf = new TransitionFunction();
@@ -149,7 +149,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * construction time, even when surrounded by valid state labels.
 	 */
 	public function testEmptyValueInAllowedStatesThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid value for allowed state ''. Expected non-empty string.");
 
 		$tf = new TransitionFunction();
@@ -168,7 +168,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * must be rejected at construction time.
 	 */
 	public function testDuplicateValueInAllowedStatesThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Duplicate allowed state 'S1'. Expected allowed states to be unique.");
 
 		$tf = new TransitionFunction();
@@ -191,7 +191,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * exists only in the accepted states list must be rejected at construction time.
 	 */
 	public function testAcceptedStatesMustBeInAllowedStates (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Unknown accepted state 'S2'. Expected accepted state to be found in list of allowed states.");
 
 		$tf = new TransitionFunction();
@@ -214,7 +214,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * label that is not in the allowed states list must be rejected at construction time.
 	 */
 	public function testInitialStateMustBeInAllowedStates (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Unknown initial state 'S2'. Expected initial state to be found in list of allowed states.");
 
 		$tf = new TransitionFunction();
@@ -240,7 +240,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * Here S0 and S1 have full transitions but S2 has none.
 	 */
 	public function testTransitionsNotDefinedForStateThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transitions not defined for state 'S2'.");
 
 		$tf = new TransitionFunction();
@@ -265,7 +265,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * three states are declared as allowed (S0–S2).
 	 */
 	public function testThrowsExceptionWhenNumberOfStatesDefinedInTransitionFunctionIsGreaterThanNumberOfAllowedStates (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transitions exist for 4 states but there are only 3 allowed states. Expected transitions to be defined only for allowed states.");
 
 		$tf = new TransitionFunction();
@@ -293,7 +293,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * for 'b'.
 	 */
 	public function testTransitionNotDefinedForStateAndSymbolThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Missing transition for state 'S0' and symbol 'b'. Expected transition to be defined.");
 
 		$tf = new TransitionFunction();
@@ -316,7 +316,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * contains two symbols.
 	 */
 	public function testThrowsExceptionWhenNumberOfTransitionsForStateIsGreaterThanNumberOfSymbolsInAlphabet (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("There are 3 transitions for state 'S0' but there are only 2 symbols in alphabet. Expected transitions to be defined only for symbols in alphabet.");
 
 		$tf = new TransitionFunction();
@@ -338,7 +338,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * Here the transition for ('S0', 'a') leads to 'S1', which is not an allowed state.
 	 */
 	public function testTransitionLeadingToInvalidStateThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Transition for state 'S0' and symbol 'a' leads to an invalid next state of 'S1'. Expected next state to be in list of allowed states.");
 
 		$tf = new TransitionFunction();
@@ -481,7 +481,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * and its zero-based position within the input.
 	 */
 	public function testSymbolNotFoundInAlphabetThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Unknown symbol 'c' within input 'ac' at position 1. Expected symbol to be found in alphabet: a, b");
 
 		$tf = new TransitionFunction();
@@ -508,7 +508,7 @@ class FiniteStateMachineTest extends TestCase {
 	 * which is not accepted.
 	 */
 	public function testFinalStateNotInAcceptedStatesThrowsException (): void {
-		$this->expectException(\DomainException::class);
+		$this->expectException(DomainException::class);
 		$this->expectExceptionMessage("Rejected final state 'S0' for input 'aaa'. Expected final state to be found in list of accepted states.");
 
 		$tf = new TransitionFunction();

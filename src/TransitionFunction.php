@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace FSM;
 
+use InvalidArgumentException;
+
 /**
  * Represents the transition function (δ) of a finite state machine.
  *
@@ -28,7 +30,7 @@ class TransitionFunction {
 	 * @param string $inputState  The current state of the machine.
 	 * @param string $inputSymbol The input symbol being consumed.
 	 *
-	 * @throws \InvalidArgumentException If no transition is defined for the given (state, symbol) pair.
+	 * @throws InvalidArgumentException If no transition is defined for the given (state, symbol) pair.
 	 *
 	 * @return string The next state after consuming the symbol.
 	 */
@@ -38,7 +40,7 @@ class TransitionFunction {
 			return $nextState;
 		}
 
-		throw new \InvalidArgumentException(
+		throw new InvalidArgumentException(
 			"Unknown transition with input state '$inputState' and input symbol '$inputSymbol'."
 		);
 	}

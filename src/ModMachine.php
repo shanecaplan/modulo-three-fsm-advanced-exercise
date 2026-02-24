@@ -6,6 +6,8 @@ namespace FSM;
 
 use FSM\Utils\Validation;
 
+use InvalidArgumentException;
+
 /**
  * A DFA-based machine that computes the remainder of a binary number modulo N.
  *
@@ -38,7 +40,7 @@ class ModMachine {
 	 *
 	 * @param int $modulus The divisor (must be greater than zero).
 	 *
-	 * @throws \InvalidArgumentException If $modulus is not a positive integer.
+	 * @throws InvalidArgumentException If $modulus is not a positive integer.
 	 */
 	public function __construct (int $modulus) {
 		$this->assertModulusValid($modulus);
@@ -57,13 +59,13 @@ class ModMachine {
 	 *
 	 * @param string $binary A string containing only '0' and '1' characters.
 	 *
-	 * @throws \InvalidArgumentException If $binary contains characters other than '0' and '1'.
+	 * @throws InvalidArgumentException If $binary contains characters other than '0' and '1'.
 	 *
 	 * @return int The remainder of the binary number divided by the modulus (0 ≤ result < modulus).
 	 */
 	public function execute (string $binary): int {
 		if (!Validation::isBinaryString($binary)) {
-			throw new \InvalidArgumentException("Invalid binary string '$binary'. Expected only '0' or '1' characters.");
+			throw new InvalidArgumentException("Invalid binary string '$binary'. Expected only '0' or '1' characters.");
 		}
 
 		$acceptedState = $this->fsm->execute($binary);
@@ -75,11 +77,11 @@ class ModMachine {
 	/**
 	 * Validates that the modulus is a positive integer.
 	 *
-	 * @throws \InvalidArgumentException If $modulus is zero or negative.
+	 * @throws InvalidArgumentException If $modulus is zero or negative.
 	 */
 	private function assertModulusValid (int $modulus): void {
 		if ($modulus <= 0) {
-			throw new \InvalidArgumentException("Invalid modulus $modulus. Expected modulus to be greater than zero.");
+			throw new InvalidArgumentException("Invalid modulus $modulus. Expected modulus to be greater than zero.");
 		}
 	}
 

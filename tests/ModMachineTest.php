@@ -90,7 +90,7 @@ class ModMachineTest extends TestCase {
 	 * compute a remainder. The constructor must reject it immediately.
 	 */
 	public function testModulusOfZeroThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Invalid modulus 0. Expected modulus to be greater than zero.');
 
 		new ModMachine(0);
@@ -101,7 +101,7 @@ class ModMachineTest extends TestCase {
 	 * by the constructor.
 	 */
 	public function testNegativeModulusThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Invalid modulus -1. Expected modulus to be greater than zero.');
 
 		new ModMachine(-1);
@@ -118,7 +118,7 @@ class ModMachineTest extends TestCase {
 	 * Note: '3' at position 3 of '10031' is the first invalid character encountered.
 	 */
 	public function testInvalidNumericCharacterThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid binary string '10031'. Expected only '0' or '1' characters.");
 
 		$modMachine = new ModMachine(4);
@@ -130,7 +130,7 @@ class ModMachineTest extends TestCase {
 	 * validation before execution reaches the underlying FSM.
 	 */
 	public function testNonNumericCharacterThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid binary string '1b010'. Expected only '0' or '1' characters.");
 
 		$modMachine = new ModMachine(4);
@@ -142,7 +142,7 @@ class ModMachineTest extends TestCase {
 	 * binary digit.
 	 */
 	public function testSpaceCharacterAloneThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid binary string ' '. Expected only '0' or '1' characters.");
 
 		$modMachine = new ModMachine(4);
@@ -154,7 +154,7 @@ class ModMachineTest extends TestCase {
 	 * whitespace is not a valid binary digit.
 	 */
 	public function testSpaceCharacterInMiddleThrowsException (): void {
-		$this->expectException(\InvalidArgumentException::class);
+		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage("Invalid binary string '10 01'. Expected only '0' or '1' characters.");
 
 		$modMachine = new ModMachine(4);
