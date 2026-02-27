@@ -92,7 +92,7 @@ class FiniteStateMachine {
 	public function execute (string $input): string {
 		$currentState = $this->initialState;
 
-		for ($i = 0; $i < strlen($input); $i++) {
+		for ($i = 0; $i < mb_strlen($input); $i++) {
 			$symbol = $input[$i];
 			$this->assertInputSymbolInAlphabet($symbol, $input, $i);
 			$currentState = $this->transitionFunction->execute($currentState, $symbol);
@@ -318,7 +318,7 @@ class FiniteStateMachine {
 				throw new InvalidArgumentException(sprintf($errorMessages['valueEmptyString'], $value));
 			}
 
-			if (in_array($value, $processedValues)) {
+			if (in_array($value, $processedValues, true)) {
 				throw new InvalidArgumentException(sprintf($errorMessages['valueDuplicate'], $value));
 			}
 
